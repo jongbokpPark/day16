@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #wrapper {
+        width: 1000px;
+        height: 800px;
+        margin: auto;
+        background-image: url("../images/Gallerxy/bg.png");
+        position: relative;
+      }
+    </style>
+
+    <script src="../lib/common.js"></script>
+    <script src="./gllHero.js"></script>
+    <script src="./gllEnemy.js"></script>
+    <script src="./gllBullet.js"></script>
+    <script>
+      let wrapper;
+      let bgY = 0; // 배경의 Y축 값을 누적시킬 전역변수 선언
+      let hero;
+      let bulletArray = []; // 다수에 총알아 나타나기떄문에 배열로 선언
+
+      // 5. 4개의 배열 생성
+      let enemyImgArray = [
+        "../images/Gallerxy/green_king.png",
+        "../images/Gallerxy/blue_king.png",
+        "../images/Gallerxy/enemy2.png",
+        "../images/Gallerxy/enemy1.png",
+      ];
+
+      // 6. 이차원 구조로 배치된 이미지들을 담게될 이차원 배열
+      let enemyArray = [];
+
+      // 2-2. 배경이 아래로 내려가는 효과를 내기
+      function bgEffect() {
+        bgY++;
+        // wrapper.style.backgroundPosition ="x축px(0) y축px"
+        wrapper.style.backgroundPosition = "0px " + bgY + "px";
+      }
+
+      // 3-1. 주인공 등장 호출
+      function createHero() {
+        hero = new Hero(
+          wrapper,
+          "../images/Gallerxy/ship.png",
+          450,
+          700,
+          50,
+          50,
+          0,
+          0
+        );
+      }
+
+      // 4-1 적군 생성 함수 만들기
+      function createEnemy() {
+        for (let a = 0; a < 4; a++) {
+          let arr = []; // 층수만큼 일차원배열 추가
+          for (let i = 0; i < 20; i++) {
+            let enemy = new Enemy(
+              wrapper,
+              enemyImgArray[a],
+              80 + i * (40 + 2),
+              50 + a * (40 + 2),
+              40,
+              40,
+              0,
+              0
+            );
+            arr.push(enemy);
+          }
+          enemyArray.push(arr);
+        }
+      }
+
+      //   8. 발사 이벤트
+      function fire() {
+        let bullet = new Bullet(
+          wrapper,
+          "../images/Gallerxy/bullet.png",
+          hero.x + hero.width * (1 / 2),
+          hero.y,
+          7,
+          17,
+          0,
+          -10
+        );
+        bulletArray.push(bullet);
+      }
+
+      // 1-2. gameLoop의 함수 만들기
+      function gameLoop() {
+        // 2-2. 배경이 아래로 내려가는 효과를 선언
+        bgEffect();
+
+        hero.move();
+
+        // 생성된 모든 총알을 대상으로 move()
+        for (let i = 0; i < bulletArray.length; i++) {
+          bulletArray[i].move();
+        }
+      }
+
+      // 0. 화면이 시작 load선언
+      addEventListener("load", function () {
+        wrapper = document.getElementById("wrapper");
+
+        // 3-2. 주인공 생성
+        createHero();
+
+        // 4-1 적군 생성
+        createEnemy();
+
+        // 7. 키보드 이벤트 연결
+        addEventListener("keydown", function () {
+          switch (event.keyCode) {
+            case 32:
+              fire();
+              break; // 발사
+            case 37:
+              hero.velX = -5;
+              break; // 좌
+            case 39:
+              hero.velX = 5;
+              break; // 우
+          }
+        });
+        addEventListener("keyup", function () {
+          switch (event.keyCode) {
+            case 32:
+              fire();
+              break; // 발사
+            case 37:
+              hero.velX = 0;
+              break; // 좌
+            case 39:
+              hero.velX = 0;
+              break; // 우
+          }
+        });
+
+        // 1-1. gameLoop의 인터벌 만들기
+        setInterval("gameLoop()", 10);
+      });
+    </script>
+  </head>
+  <body>
+    <div id="wrapper"></div>
+  </body>
+</html>
